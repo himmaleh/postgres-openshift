@@ -1,0 +1,46 @@
+#cloud-config
+bootcmd:
+  - |
+    cat > /usr/local/sbin/restore-postgres-quadlet.sh <<'SCRIPT'
+    #!/bin/bash
+    set -eu
+    install -D -m 0644 /srv/postgres/config/postgres17.container /etc/containers/systemd/postgres17.container
+    systemctl daemon-reload
+    systemctl start postgres17.service
+    SCRIPT
+    chmod 0755 /usr/local/sbin/restore-postgres-quadlet.sh
+
+    cat > /etc/systemd/system/restore-postgres-quadlet.service <<'UNIT'
+    [Unit]
+    Description=Restore PostgreSQL Quadlet from persistent disk
+    After=cloud-final.service
+    RequiresMountsFor=/srv/postgres/config
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/local/sbin/restore-postgres-quadlet.sh
+    RemainAfterExit=yes
+
+    [Install]
+    WantedBy=multi-user.target
+    UNIT
+
+    systemctl daemon-reload
+    systemctl enable restore-postgres-quadlet.service
+mounts:
+- [ "UUID=99c07ea6-7487-4872-96f2-da44b69644fa",
+    "/srv/postgres", "xfs", "defaults", "0", "0" ]
+chpasswd:
+  expire: false
+packages:
+- qemu-guest-agent
+password: ChangeMe123!
+runcmd:
+- systemctl enable --now qemu-guest-agent
+ssh_authorized_keys:
+- |
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWLVjB2r2pRquMPtmI/8brPq9vwc8/PJzih1/Alnbkmhv60W0EuB5adWPktX8MHsKZnaClNGrYqj18P3beD6j66RmiJkuppl0TACDb6PqfuN/E0SSbuHw8xPZLp50XKj71AITW34h9JeoX8NDVVS0d1Y3+ySXO4ITAhxWAIROCafV8CQvJEPy72/IcdLj21PVznLxb2uR82LrI06acHM+0psIf98ZqTi4u2to0P4XIYLbWZdkjS2o4dim/9YV11GrR09YfnTNPhjhtOt+e/s5ZbvE/KahFriKuwXUaII7x0NvcMSmj7dgGu3HxLNe1mZrdmTQNmfZ6UcvT+AniCShXOdHRckeK6oLvkdx1J0qUA0a0Ze0VkKSa4f1uC+I5Svs3jqFqmy2Uu8REVaajAOyyLj8Y2wacZwdlaINwPM1u5ewFezhIp1L+xzGiMEZYkGBywmldoJyTa/mBTWxt4pBDqitiGrWPjckFNBGk14ebG7AwFh5KiG0impvZxPkbMFE= sandbox@cnv
+- |
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWLVjB2r2pRquMPtmI/8brPq9vwc8/PJzih1/Alnbkmhv60W0EuB5adWPktX8MHsKZnaClNGrYqj18P3beD6j66RmiJkuppl0TACDb6PqfuN/E0SSbuHw8xPZLp50XKj71AITW34h9JeoX8NDVVS0d1Y3+ySXO4ITAhxWAIROCafV8CQvJEPy72/IcdLj21PVznLxb2uR82LrI06acHM+0psIf98ZqTi4u2to0P4XIYLbWZdkjS2o4dim/9YV11GrR09YfnTNPhjhtOt+e/s5ZbvE/KahFriKuwXUaII7x0NvcMSmj7dgGu3HxLNe1mZrdmTQNmfZ6UcvT+AniCShXOdHRckeK6oLvkdx1J0qUA0a0Ze0VkKSa4f1uC+I5Svs3jqFqmy2Uu8REVaajAOyyLj8Y2wacZwdlaINwPM1u5ewFezhIp1L+xzGiMEZYkGBywmldoJyTa/mBTWxt4pBDqitiGrWPjckFNBGk14ebG7AwFh5KiG0impvZxPkbMFE= sandbox@cnv
+ssh_pwauth: true
+user: rhel10
