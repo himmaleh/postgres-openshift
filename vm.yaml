@@ -2,14 +2,14 @@ apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
   annotations:
-    kubemacpool.io/transaction-timestamp: '2026-10-14T07:40:44.184303179Z'
+    kubemacpool.io/transaction-timestamp: '2026-10-20T06:51:06.335186864Z'
     kubevirt.io/latest-observed-api-version: v1
     kubevirt.io/storage-observed-api-version: v1
-  resourceVersion: '7064039916'
+  resourceVersion: '7093474200'
   name: pg01
   uid: 264cbe9e-9fd6-4db5-93ae-88f5478c0e75
   creationTimestamp: '2026-09-29T07:41:02Z'
-  generation: 2
+  generation: 3
   managedFields:
     - apiVersion: kubevirt.io/v1
       fieldsType: FieldsV1
@@ -91,15 +91,25 @@ metadata:
           'f:template':
             'f:spec':
               'f:volumes': {}
-      manager: Mozilla
+      manager: kubectl-edit
       operation: Update
-      time: '2026-10-14T07:40:44Z'
+      time: '2026-10-20T06:51:06Z'
+    - apiVersion: kubevirt.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          'f:stateChangeRequests': {}
+      manager: virt-api
+      operation: Update
+      subresource: status
+      time: '2026-10-20T07:15:27Z'
     - apiVersion: kubevirt.io/v1
       fieldsType: FieldsV1
       fieldsV1:
         'f:status':
           .: {}
           'f:conditions': {}
+          'f:created': {}
           'f:desiredGeneration': {}
           'f:observedGeneration': {}
           'f:printableStatus': {}
@@ -108,7 +118,7 @@ metadata:
       manager: virt-controller
       operation: Update
       subresource: status
-      time: '2026-10-15T11:35:18Z'
+      time: '2026-10-20T07:15:29Z'
   namespace: organicgreentea-dev
   finalizers:
     - kubevirt.io/virtualMachineControllerFinalize
@@ -176,32 +186,15 @@ spec:
           persistentVolumeClaim:
             claimName: pg01-pgdata
         - cloudInitNoCloud:
-            userData: |
-              #cloud-config
-              mounts:
-              - [ "UUID=99c07ea6-7487-4872-96f2-da44b69644fa",
-                  "/srv/postgres", "xfs", "defaults", "0", "0" ]
-              chpasswd:
-                expire: false
-              packages:
-              - qemu-guest-agent
-              password: ChangeMe123!
-              runcmd:
-              - systemctl enable --now qemu-guest-agent
-              ssh_authorized_keys:
-              - |
-                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWLVjB2r2pRquMPtmI/8brPq9vwc8/PJzih1/Alnbkmhv60W0EuB5adWPktX8MHsKZnaClNGrYqj18P3beD6j66RmiJkuppl0TACDb6PqfuN/E0SSbuHw8xPZLp50XKj71AITW34h9JeoX8NDVVS0d1Y3+ySXO4ITAhxWAIROCafV8CQvJEPy72/IcdLj21PVznLxb2uR82LrI06acHM+0psIf98ZqTi4u2to0P4XIYLbWZdkjS2o4dim/9YV11GrR09YfnTNPhjhtOt+e/s5ZbvE/KahFriKuwXUaII7x0NvcMSmj7dgGu3HxLNe1mZrdmTQNmfZ6UcvT+AniCShXOdHRckeK6oLvkdx1J0qUA0a0Ze0VkKSa4f1uC+I5Svs3jqFqmy2Uu8REVaajAOyyLj8Y2wacZwdlaINwPM1u5ewFezhIp1L+xzGiMEZYkGBywmldoJyTa/mBTWxt4pBDqitiGrWPjckFNBGk14ebG7AwFh5KiG0impvZxPkbMFE= sandbox@cnv
-              - |
-                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWLVjB2r2pRquMPtmI/8brPq9vwc8/PJzih1/Alnbkmhv60W0EuB5adWPktX8MHsKZnaClNGrYqj18P3beD6j66RmiJkuppl0TACDb6PqfuN/E0SSbuHw8xPZLp50XKj71AITW34h9JeoX8NDVVS0d1Y3+ySXO4ITAhxWAIROCafV8CQvJEPy72/IcdLj21PVznLxb2uR82LrI06acHM+0psIf98ZqTi4u2to0P4XIYLbWZdkjS2o4dim/9YV11GrR09YfnTNPhjhtOt+e/s5ZbvE/KahFriKuwXUaII7x0NvcMSmj7dgGu3HxLNe1mZrdmTQNmfZ6UcvT+AniCShXOdHRckeK6oLvkdx1J0qUA0a0Ze0VkKSa4f1uC+I5Svs3jqFqmy2Uu8REVaajAOyyLj8Y2wacZwdlaINwPM1u5ewFezhIp1L+xzGiMEZYkGBywmldoJyTa/mBTWxt4pBDqitiGrWPjckFNBGk14ebG7AwFh5KiG0impvZxPkbMFE= sandbox@cnv
-              ssh_pwauth: true
-              user: rhel10
+            secretRef:
+              name: pg01-cloud-init
           name: cloudinitdisk
 status:
   conditions:
-    - lastProbeTime: '2026-10-15T11:35:18Z'
-      lastTransitionTime: '2026-10-15T11:35:18Z'
-      message: VMI does not exist
-      reason: VMINotExists
+    - lastProbeTime: '2026-10-20T07:15:27Z'
+      lastTransitionTime: '2026-10-20T07:15:27Z'
+      message: virt-launcher pod is terminating
+      reason: PodTerminating
       status: 'False'
       type: Ready
     - lastProbeTime: null
@@ -214,10 +207,14 @@ status:
       lastTransitionTime: null
       status: 'True'
       type: StorageLiveMigratable
-  desiredGeneration: 2
-  observedGeneration: 2
+  created: true
+  desiredGeneration: 3
+  observedGeneration: 3
   printableStatus: Stopped
   runStrategy: Manual
+  stateChangeRequests:
+    - action: Stop
+      uid: f2dd0c6d-69fd-4e12-bc83-d761b20ec556
   volumeSnapshotStatuses:
     - enabled: false
       name: rootdisk
