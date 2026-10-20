@@ -1,0 +1,58 @@
+name: Deploy postgres db on a vm
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - 'vm.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+    group: pages
+    cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v6
+
+        - name: 
+          uses: 
+
+        - name: Prepare website files
+          run: | 
+            test -f index.html || { echo "ERROR: index.html not found in repository root"; exit 1; }
+            mkdir -p _site
+            cp index.html _site/index.html
+            #copy common website assests if they exist.
+            for file in *.css *.js; do
+                if [ -f "$file" ]; then cp "$file" _site/; fi
+            done
+            for dir in assests images css js; do
+                if [ -d "$dir" ]; then cp -R "$dir" _site/; fi
+            done 
+        - name: Upload website artifact
+          uses: actions/upload-pages-artifact@v4
+          with: 
+            path: _site
+
+  deploy: 
+    runs-on: ubuntu-latest
+    needs: build 
+    permissions: 
+        pages: write
+        id-token: write
+    environment: 
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+        - name: Deploy to Github Pages
+          id: deployment 
+          uses: actions/deploy-pages@v4
