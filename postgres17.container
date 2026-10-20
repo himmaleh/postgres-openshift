@@ -1,8 +1,6 @@
-
-# /etc/containers/systemd/postgres17.container
-
+sudo -n tee /etc/containers/systemd/postgres17.container > /dev/null <<'EOF'
 [Unit]
-Description=PostgreSQL 17 database
+Description=PostgreSQL 17 Stateful Database
 Wants=network-online.target
 After=network-online.target
 RequiresMountsFor=/srv/postgres/data
@@ -11,8 +9,10 @@ RequiresMountsFor=/srv/postgres/data
 Image=docker.io/library/postgres:17
 ContainerName=postgres17
 Pull=missing
-Volume=/srv/postgres/data:/var/lib/postgresql/data
-PublishPort=5432:5432
+User=1000:1000
+Environment=PGDATA=/var/lib/postgresql/data
+Volume=/srv/postgres/data:/var/lib/postgresql/data:Z
+PublishPort=127.0.0.1:5432:5432
 
 [Service]
 Restart=always
@@ -20,3 +20,4 @@ TimeoutStartSec=900
 
 [Install]
 WantedBy=multi-user.target
+EOF
