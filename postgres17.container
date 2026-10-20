@@ -1,0 +1,22 @@
+
+# /etc/containers/systemd/postgres17.container
+
+[Unit]
+Description=PostgreSQL 17 database
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/srv/postgres/data
+
+[Container]
+Image=docker.io/library/postgres:17
+ContainerName=postgres17
+Pull=missing
+Volume=/srv/postgres/data:/var/lib/postgresql/data
+PublishPort=5432:5432
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target
